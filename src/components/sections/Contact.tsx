@@ -1,5 +1,4 @@
 import { ScrollReveal } from "../ScrollReveal";
-import emailjs from "@emailjs/browser";
 import { useRef, useState } from "react";
 
 export function Contact() {
@@ -14,18 +13,25 @@ export function Contact() {
 
     setLoading(true);
 
-    try {
-      await emailjs.sendForm(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        formRef.current,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-      );
+    const formData = new FormData(formRef.current);
 
-      setSent(true);
-      formRef.current.reset();
-    } catch (error) {
-      console.error("Email failed:", error);
+    try {
+      const res = await fetch("https://formspree.io/f/meerwnrj", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (res.ok) {
+        setSent(true);
+        formRef.current.reset();
+      } else {
+        throw new Error("Failed");
+      }
+    } catch (err) {
+      console.error(err);
       alert("Failed to send message");
     } finally {
       setLoading(false);
@@ -64,61 +70,42 @@ export function Contact() {
                   className="space-y-8"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold px-1">
-                        Full Name
-                      </label>
-                      <input
-                        name="user_name"
-                        required
-                        className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white focus:outline-none focus:border-emerald-400/50"
-                        placeholder="John Doe"
-                        type="text"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold px-1">
-                        Email
-                      </label>
-                      <input
-                        name="user_email"
-                        required
-                        className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white focus:outline-none focus:border-emerald-400/50"
-                        placeholder="john@email.com"
-                        type="email"
-                      />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold px-1">
-                        Organization
-                      </label>
-                      <input
-                        name="organization"
-                        className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white"
-                        placeholder="Nexus Interactive"
-                        type="text"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold px-1">
-                      Message
-                    </label>
-                    <textarea
-                      name="message"
+                    <input
+                      name="name"
                       required
-                      className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white min-h-[160px]"
-                      placeholder="Describe your vision..."
+                      placeholder="Full Name"
+                      className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white"
+                    />
+
+                    <input
+                      name="email"
+                      required
+                      type="email"
+                      placeholder="Email"
+                      className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white"
+                    />
+
+                    <input
+                      name="organization"
+                      placeholder="Organization"
+                      className="md:col-span-2 w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white"
                     />
                   </div>
+
+                  <textarea
+                    name="message"
+                    required
+                    placeholder="Message"
+                    className="w-full bg-zinc-700 border border-zinc-600 rounded-md p-4 text-white min-h-[160px]"
+                  />
+
+                  {/* Optional: disable captcha */}
+                  <input type="hidden" name="_captcha" value="false" />
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full md:w-auto bg-emerald-400 text-zinc-900 px-12 py-4 rounded-md text-xs font-bold uppercase tracking-[0.2em] hover:brightness-110 transition-all"
+                    className="w-full md:w-auto bg-emerald-400 text-zinc-900 px-12 py-4 rounded-md text-xs font-bold uppercase tracking-[0.2em]"
                   >
                     {loading ? "Sending..." : "Send Inquiry"}
                   </button>
