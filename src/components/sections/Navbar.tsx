@@ -13,7 +13,15 @@ export function Navbar() {
           <TypingAnimation startOnView>VIGNESH VASU</TypingAnimation>
         </a>
         <NavbarClient />
-        <ShinyButton className="bg-gradient-to-r from-emerald-400 to-emerald-500 text-zinc-900 rounded-md text-xs font-bold uppercase tracking-wider">
+        <ShinyButton
+          className="bg-gradient-to-r from-emerald-400 to-emerald-500 text-zinc-900 rounded-md text-xs font-bold uppercase tracking-wider"
+          onClick={() => {
+            const contactSection = document.getElementById("contact");
+            if (contactSection) {
+              contactSection.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
           Let's Talk
         </ShinyButton>
       </div>
